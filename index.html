@@ -3,202 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>释放空间 - 圣多纳引导助手</title>
+    <title>圣多纳深度释放工坊</title>
     <style>
         :root {
-            --bg-color: #f4f7f6;
-            --text-color: #34495e;
-            --accent-color: #7fb3d5;
-            --card-bg: #ffffff;
+            --bg-gradient: linear-gradient(135deg, #2c3e50 0%, #000000 100%);
+            --accent-color: #76d7c4;
+            --text-main: #ecf0f1;
+            --text-dim: #bdc3c7;
+            --card-bg: rgba(255, 255, 255, 0.05);
         }
 
         body {
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: 'STHeiti', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            height: 100vh;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            transition: background 0.5s ease;
+            overflow: hidden;
         }
 
         #app {
-            background-color: var(--card-bg);
-            padding: 2.5rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            max-width: 500px;
-            width: 90%;
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
             text-align: center;
-            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            background: var(--card-bg);
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            margin: 0 auto 2rem;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        #progress-inner {
+            width: 10%;
+            height: 100%;
+            background: var(--accent-color);
+            transition: width 0.5s ease;
         }
 
         h2 {
             font-weight: 300;
+            font-size: 1.5rem;
             line-height: 1.6;
-            margin-bottom: 2rem;
-            min-height: 80px;
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            outline: none;
-            box-sizing: border-box;
-        }
-
-        .button-group {
+            margin-bottom: 2.5rem;
+            min-height: 100px;
             display: flex;
-            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-box {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 12px;
+            color: white;
+            width: 80%;
+            font-size: 1.1rem;
+            outline: none;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 15px;
             justify-content: center;
             flex-wrap: wrap;
         }
 
         button {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            border-radius: 30px;
+            background: transparent;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 12px 30px;
+            border-radius: 50px;
             cursor: pointer;
             font-size: 1rem;
-            transition: transform 0.2s, opacity 0.2s;
+            transition: all 0.3s;
         }
 
         button:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+            background: var(--accent-color);
+            color: #000;
+            box-shadow: 0 0 20px rgba(118, 215, 196, 0.4);
         }
 
         button.secondary {
-            background-color: #bdc3c7;
+            border-color: var(--text-dim);
+            color: var(--text-dim);
         }
 
-        .fade-in {
-            animation: fadeIn 0.8s ease-in;
-        }
-
+        .fade-in { animation: fadeIn 1s ease forwards; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hint {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 20px;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
 
-<div id="app" class="fade-in">
-    <div id="content">
-        <h2 id="question">欢迎。此时此刻，你正感受到什么？</h2>
-        <div id="input-area" class="input-group">
-            <input type="text" id="feeling-input" placeholder="例如：焦虑、不安、愤怒..." onkeypress="handleKeyPress(event)">
+<div id="app">
+    <div class="progress-bar"><div id="progress-inner"></div></div>
+    <div id="content" class="fade-in">
+        <h2 id="display-text">准备好开始一段内在释放之旅了吗？</h2>
+        <div id="interactive-area">
+            <button onclick="startJourney()">是的，开始</button>
         </div>
-        <div class="button-group" id="btn-group">
-            <button onclick="nextStep()">开始释放</button>
-        </div>
+        <p class="hint" id="hint-text">请找一个安静的地方坐好</p>
     </div>
 </div>
 
 <script>
-    let step = 0;
-    let feeling = "";
-    const questionEl = document.getElementById('question');
-    const inputArea = document.getElementById('input-area');
-    const btnGroup = document.getElementById('btn-group');
+    let state = {
+        step: 0,
+        feeling: "",
+        want: ""
+    };
 
-    const flow = [
-        {
-            q: () => `你能允许这种 **${feeling}** 的感觉存在吗？`,
-            btns: [
-                { text: "可以", next: true },
-                { text: "很难...", next: true }
-            ]
-        },
-        {
-            q: () => `你能把它放下吗？ (Could you?)`,
-            btns: [
-                { text: "可以", next: true },
-                { text: "不可以", next: true }
-            ]
-        },
-        {
-            q: () => `你会把它放下吗？ (Would you?)`,
-            btns: [
-                { text: "我会", next: true },
-                { text: "我不想", next: true }
-            ]
-        },
-        {
-            q: () => `什么时候？`,
-            btns: [
-                { text: "现在", next: true }
-            ]
-        },
-        {
-            q: () => `现在，你感觉稍微轻松一点了吗？`,
-            btns: [
-                { text: "好多了", action: 'reset' },
-                { text: "还想再释放一次", action: 'loop' }
-            ]
-        }
-    ];
+    const content = document.getElementById('content');
+    const displayText = document.getElementById('display-text');
+    const interactiveArea = document.getElementById('interactive-area');
+    const hintText = document.getElementById('hint-text');
+    const progressInner = document.getElementById('progress-inner');
 
-    function handleKeyPress(e) {
-        if (e.key === 'Enter') nextStep();
-    }
+    function updateUI(text, hint, buttons, progress) {
+        content.classList.remove('fade-in');
+        void content.offsetWidth; 
+        content.classList.add('fade-in');
 
-    function nextStep() {
-        if (step === 0) {
-            feeling = document.getElementById('feeling-input').value || "这种感觉";
-            inputArea.style.display = 'none';
-        }
+        displayText.innerHTML = text;
+        hintText.innerText = hint;
+        progressInner.style.width = progress + "%";
         
-        renderStep();
-    }
-
-    function renderStep() {
-        const current = flow[step];
-        questionEl.classList.remove('fade-in');
-        void questionEl.offsetWidth; // 触发重绘
-        questionEl.classList.add('fade-in');
-        
-        questionEl.innerText = current.q();
-        
-        btnGroup.innerHTML = '';
-        current.btns.forEach(btn => {
+        interactiveArea.innerHTML = '';
+        buttons.forEach(btn => {
             const b = document.createElement('button');
-            b.innerText = btn.text;
-            if (btn.text === "不可以" || btn.text === "我不想" || btn.text === "很难...") {
-                b.className = 'secondary';
-            }
-            b.onclick = () => {
-                if (btn.action === 'reset') {
-                    location.reload();
-                } else if (btn.action === 'loop') {
-                    step = 0;
-                    inputArea.style.display = 'block';
-                    renderInitial();
-                } else {
-                    step++;
-                    renderStep();
-                }
-            };
-            btnGroup.appendChild(b);
+            b.innerText = btn.label;
+            if(btn.class) b.className = btn.class;
+            b.onclick = btn.action;
+            interactiveArea.appendChild(b);
         });
     }
 
-    function renderInitial() {
-        questionEl.innerText = "好，那我们再来一次。现在这种感觉是什么？";
-        document.getElementById('feeling-input').value = "";
-        btnGroup.innerHTML = '<button onclick="nextStep()">继续</button>';
+    function startJourney() {
+        updateUI(
+            "此时此刻，你的内心正浮现出什么感觉？",
+            "试着去描述它，而不是解释它",
+            [{ label: "确认", action: () => setFeeling() }],
+            20
+        );
+        interactiveArea.insertAdjacentHTML('afterbegin', `<input type="text" id="feeling-input" class="input-box" placeholder="例如：胸口闷、烦躁、委屈...">`);
+    }
+
+    function setFeeling() {
+        state.feeling = document.getElementById('feeling-input').value || "这种感觉";
+        askToAllow();
+    }
+
+    function askToAllow() {
+        updateUI(
+            `你能允许 **${state.feeling}** 在这一刻存在吗？`,
+            "接纳是释放的第一步",
+            [
+                { label: "可以", action: askDesire },
+                { label: "有点抗拒", action: () => releaseResistance() }
+            ],
+            35
+        );
+    }
+
+    function releaseResistance() {
+        updateUI(
+            "你能允许这种“抗拒”的感觉存在吗？",
+            "即便是抗拒，也是可以被接纳的",
+            [{ label: "可以了，继续", action: askDesire }],
+            40
+        );
+    }
+
+    function askDesire() {
+        updateUI(
+            `感受一下，**${state.feeling}** 背后是否藏着某种渴望？`,
+            "大多数情绪都源于这三种基本欲望",
+            [
+                { label: "想要控制什么", action: () => setWant("控制欲") },
+                { label: "想要获得认可", action: () => setWant("认可欲") },
+                { label: "想要安全感", action: () => setWant("安全欲") },
+                { label: "不确定，就是不舒服", action: () => setWant("这种牵挂") }
+            ],
+            55
+        );
+    }
+
+    function setWant(want) {
+        state.want = want;
+        askCould();
+    }
+
+    function askCould() {
+        updateUI(
+            `你能把想要这份 **${state.want}** 的冲动放下吗？`,
+            "Could you? 这只是在询问你的能力，不代表必须做",
+            [
+                { label: "可以", action: askWould },
+                { label: "很难", action: askWould }
+            ],
+            70
+        );
+    }
+
+    function askWould() {
+        updateUI(
+            `你愿意放下它，换取一份轻松吗？`,
+            "Would you? 这是你的意愿选择",
+            [
+                { label: "我愿意", action: askWhen },
+                { label: "还是不想", action: askWhen }
+            ],
+            85
+        );
+    }
+
+    function askWhen() {
+        updateUI(
+            `什么时候？`,
+            "当下是唯一的出口",
+            [{ label: "现在", action: finalize }],
+            95
+        );
+    }
+
+    function finalize() {
+        updateUI(
+            "深吸一口气...再缓缓呼出。<br>现在感觉如何？",
+            "释放是一个剥洋葱的过程",
+            [
+                { label: "轻松多了", action: () => location.reload() },
+                { label: "还有剩余的感觉", action: () => startJourney() }
+            ],
+            100
+        );
     }
 </script>
 
