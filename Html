@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>释放空间 - 圣多纳引导助手</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --text-color: #34495e;
+            --accent-color: #7fb3d5;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            transition: background 0.5s ease;
+        }
+
+        #app {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        h2 {
+            font-weight: 300;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            min-height: 80px;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        button.secondary {
+            background-color: #bdc3c7;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" class="fade-in">
+    <div id="content">
+        <h2 id="question">欢迎。此时此刻，你正感受到什么？</h2>
+        <div id="input-area" class="input-group">
+            <input type="text" id="feeling-input" placeholder="例如：焦虑、不安、愤怒..." onkeypress="handleKeyPress(event)">
+        </div>
+        <div class="button-group" id="btn-group">
+            <button onclick="nextStep()">开始释放</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let step = 0;
+    let feeling = "";
+    const questionEl = document.getElementById('question');
+    const inputArea = document.getElementById('input-area');
+    const btnGroup = document.getElementById('btn-group');
+
+    const flow = [
+        {
+            q: () => `你能允许这种 **${feeling}** 的感觉存在吗？`,
+            btns: [
+                { text: "可以", next: true },
+                { text: "很难...", next: true }
+            ]
+        },
+        {
+            q: () => `你能把它放下吗？ (Could you?)`,
+            btns: [
+                { text: "可以", next: true },
+                { text: "不可以", next: true }
+            ]
+        },
+        {
+            q: () => `你会把它放下吗？ (Would you?)`,
+            btns: [
+                { text: "我会", next: true },
+                { text: "我不想", next: true }
+            ]
+        },
+        {
+            q: () => `什么时候？`,
+            btns: [
+                { text: "现在", next: true }
+            ]
+        },
+        {
+            q: () => `现在，你感觉稍微轻松一点了吗？`,
+            btns: [
+                { text: "好多了", action: 'reset' },
+                { text: "还想再释放一次", action: 'loop' }
+            ]
+        }
+    ];
+
+    function handleKeyPress(e) {
+        if (e.key === 'Enter') nextStep();
+    }
+
+    function nextStep() {
+        if (step === 0) {
+            feeling = document.getElementById('feeling-input').value || "这种感觉";
+            inputArea.style.display = 'none';
+        }
+        
+        renderStep();
+    }
+
+    function renderStep() {
+        const current = flow[step];
+        questionEl.classList.remove('fade-in');
+        void questionEl.offsetWidth; // 触发重绘
+        questionEl.classList.add('fade-in');
+        
+        questionEl.innerText = current.q();
+        
+        btnGroup.innerHTML = '';
+        current.btns.forEach(btn => {
+            const b = document.createElement('button');
+            b.innerText = btn.text;
+            if (btn.text === "不可以" || btn.text === "我不想" || btn.text === "很难...") {
+                b.className = 'secondary';
+            }
+            b.onclick = () => {
+                if (btn.action === 'reset') {
+                    location.reload();
+                } else if (btn.action === 'loop') {
+                    step = 0;
+                    inputArea.style.display = 'block';
+                    renderInitial();
+                } else {
+                    step++;
+                    renderStep();
+                }
+            };
+            btnGroup.appendChild(b);
+        });
+    }
+
+    function renderInitial() {
+        questionEl.innerText = "好，那我们再来一次。现在这种感觉是什么？";
+        document.getElementById('feeling-input').value = "";
+        btnGroup.innerHTML = '<button onclick="nextStep()">继续</button>';
+    }
+</script>
+
+</body>
+</html>
